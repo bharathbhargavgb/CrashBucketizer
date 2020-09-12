@@ -1,5 +1,6 @@
 import sys
 import re
+from CrashStructure import Frame, Stack
 
 
 class CrashParser:
@@ -15,8 +16,9 @@ class CrashParser:
             if matcher != None:
                 module = self.getModule(matcher)
                 method = self.getMethod(matcher)
-                stackFrames.append(module + ': ' + method)
-        return stackFrames
+                frame = Frame(module, method)
+                stackFrames.append(frame)
+        return Stack(1, stackFrames)
 
     def getModule(self, matcher):
         return matcher.group(1).strip()
@@ -51,9 +53,10 @@ def main(argv):
                     6   com.company.sampleApp                	0x000000010baa89e1 main (in Sample App) (main.cpp:98)
                     7   libdyld.dylib                 	0x00007fff72a442e5 start + 1"""
 
-    stackFrames = parser.parse(stackTrace)
-    for frame in stackFrames:
-        print(frame)
+    crashStack = parser.parse(stackTrace)
+    print(crashStack.id)
+    for frame in crashStack.frames:
+        print(frame.module + '\t' + frame.method)
 
 
 if __name__ == "__main__":
