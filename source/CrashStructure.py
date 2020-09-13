@@ -5,12 +5,16 @@ class Frame:
 
 
 class Stack:
-    def __init__(self, id, frames):
+    def __init__(self, id, stackTrace, frames):
         self.id = id
         self.frames = frames
+        self.originalStackTrace = stackTrace
 
     def __len__(self):
         return len(self.frames)
+
+    def getRawStackTrace(self):
+        return self.originalStackTrace
 
 
 class Bucket:

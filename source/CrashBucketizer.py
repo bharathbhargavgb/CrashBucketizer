@@ -12,6 +12,11 @@ class CrashBucketizer:
 
 
     def bucketize(self, newStack):
+        if len(newStack) == 0:
+            print("No frames available for this crash")
+            print(newStack.getRawStackTrace())
+            return
+
         bestBucket = None
         maxSimilarity = -1
         for bucket in self.buckets:
@@ -23,7 +28,7 @@ class CrashBucketizer:
                 maxSimilarity = similarity
                 bestBucket = bucket
 
-        if not self.buckets or maxSimilarity < 0.9:
+        if not self.buckets or maxSimilarity < 0.8:
             newBucket = Bucket(len(self.buckets) + 1)
             newBucket.append(newStack)
             self.buckets.append(newBucket)
@@ -32,7 +37,7 @@ class CrashBucketizer:
 
 
     def getSimilarity(self, stack1, stack2):
-        return self.positionDependentSimilarity(stack1, stack2, 0.3, 0.0)
+        return self.positionDependentSimilarity(stack1, stack2, 0.0, 0.0)
 
 
     def positionDependentSimilarity(self, stack1, stack2, distToTopCoeff, alignOffsetCoeff):

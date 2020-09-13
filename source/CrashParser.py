@@ -9,22 +9,33 @@ class CrashParser:
         self.appName = appName
         self.crashFrame = "[0-9]+[ ]+(.*)0x[0-9A-Fa-f]{16} (.*)"
 
-    def parse(self, stackTrace):
+
+    def parse(self, id, stackTrace):
         stackFrames = []
         for line in stackTrace.splitlines():
             matcher = re.search(self.crashFrame, line)
             if matcher != None:
                 module = self.getModule(matcher)
                 method = self.getMethod(matcher)
-                frame = Frame(module, method)
-                stackFrames.append(frame)
-        return Stack(1, stackFrames)
+
+                if module != None and method != None:
+                    frame = Frame(module, method)
+                    stackFrames.append(frame)
+
+        return Stack(id, stackTrace, stackFrames)
+
 
     def getModule(self, matcher):
-        return matcher.group(1).strip()
+        module = matcher.group(1).strip()
+        if module.startswith('libsystem'):
+            return None
+        return module
+
 
     def getMethod(self, matcher):
         method = matcher.group(2).strip()
+        if method.startswith('0x'):
+            return None
         plusIndex = method.find(' +')
         appNameIndex = method.find(' (in ' + self.appName)
         if plusIndex == -1 and appNameIndex == -1:
@@ -45,6 +56,7 @@ def main(argv):
     # If the frame structure is changed, update the regex
     stackTrace = """Thread 0 Crashed:: Main Thread  Dispatch queue: com.apple.main-thread
                     0   com.company.sampleApp                	0x000000010d047fac ns4::ns5::CrashingClass::crashingMethod() (in Sample App) + 204
+                    0   com.company.sampleApp                	0x000000010d047fac 0x7fff4baa4000
                     1   com.company.sampleApp                	0x000000010daed410 ns2::AnotherClass::loremIpsum() (in Sample App) (FileName.cpp:158)
                     2   com.company.sampleApp                	0x000000010daec5df ns2::AnotherClass::anotherMethod() (in Sample App) (FileName.cpp:116)
                     3   com.company.sampleApp                	0x000000010daebbc1 ns2::AnotherClass::randomFunction(std::__1::shared_ptr<foo::SampleClass>) (in Sample App) (FileName.cpp:95)
@@ -53,7 +65,7 @@ def main(argv):
                     6   com.company.sampleApp                	0x000000010baa89e1 main (in Sample App) (main.cpp:98)
                     7   libdyld.dylib                 	0x00007fff72a442e5 start + 1"""
 
-    crashStack = parser.parse(stackTrace)
+    crashStack = parser.parse(1, stackTrace)
     print(crashStack.id)
     for frame in crashStack.frames:
         print(frame.module + '\t' + frame.method)
