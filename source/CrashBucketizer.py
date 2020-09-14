@@ -37,7 +37,7 @@ class CrashBucketizer:
 
 
     def getSimilarity(self, stack1, stack2):
-        return self.positionDependentSimilarity(stack1, stack2, 0.0, 0.0)
+        return self.positionDependentSimilarity(stack1, stack2, 2.0, 1.9)
 
 
     def positionDependentSimilarity(self, stack1, stack2, distToTopCoeff, alignOffsetCoeff):

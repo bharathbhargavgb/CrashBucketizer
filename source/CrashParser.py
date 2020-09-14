@@ -7,13 +7,13 @@ class CrashParser:
 
     def __init__(self, appName):
         self.appName = appName
-        self.crashFrame = "[0-9]+[ ]+(.*)0x[0-9A-Fa-f]{16} (.*)"
+        self.crashFramePattern = "^[0-9]+[ ]+(.*)0x[0-9A-Fa-f]{16} (.*)"
 
 
     def parse(self, id, stackTrace):
         stackFrames = []
         for line in stackTrace.splitlines():
-            matcher = re.search(self.crashFrame, line)
+            matcher = re.search(self.crashFramePattern, line.strip())
             if matcher != None:
                 module = self.getModule(matcher)
                 method = self.getMethod(matcher)
@@ -27,7 +27,7 @@ class CrashParser:
 
     def getModule(self, matcher):
         module = matcher.group(1).strip()
-        if module.startswith('libsystem'):
+        if module.startswith('libsystem') or module.startswith('libc++abi') or module.startswith('libobjc.A') or module.startswith('libdyld'):
             return None
         return module
 
