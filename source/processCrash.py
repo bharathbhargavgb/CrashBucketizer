@@ -5,9 +5,10 @@ from CrashParser import *
 from CrashBucketizer import *
 
 class CrashProcessor:
+
     def __init__(self, appName):
         self.parser = CrashParser(appName)
-        self.bucketizer = CrashBucketizer([])
+        self.bucketizer = CrashBucketizer([], distance_measure='PDM', threshold=0.8, distToTop=0.0, alignOffset=0.0)
 
     def processCrashes(self, crashFile):
         counter = 0
@@ -17,16 +18,16 @@ class CrashProcessor:
             if line and line.strip():
                 crashString += line
             elif crashString:
-                self.processCrash(counter, crashString)
+                self.processCrash(crashString, counter)
                 counter += 1
                 crashString = ""
 
         if crashString:
-             self.processCrash(counter, crashString)
+             self.processCrash(crashString, counter)
     
     
-    def processCrash(self, counter, crashString):
-        crashStack = self.parser.parse(counter, crashString)
+    def processCrash(self, crashString, crashID=0):
+        crashStack = self.parser.parse(crashID, crashString)
         self.bucketizer.bucketize(crashStack)
     
 
@@ -44,8 +45,8 @@ class CrashProcessor:
 
 
 def main(argv):
-    #crashesFile = "../dataset/sample_crashes.txt"
-    crashesFile = "../dataset/kpr_mac_stack_trace.txt"
+    crashesFile = "../dataset/sample_crashes.txt"
+    #crashesFile = "../dataset/kpr_mac_stack_trace.txt"
     processor = CrashProcessor(argv[0])
     processor.processCrashes(crashesFile)
     processor.generateReport("../dumps")
