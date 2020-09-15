@@ -15,36 +15,77 @@ class CrashParser:
         for line in stackTrace.splitlines():
             matcher = re.search(self.crashFramePattern, line.strip())
             if matcher != None:
-                module = self.getModule(matcher)
-                method = self.getMethod(matcher)
+                module = self.__extractModule(matcher)
+                method = self.__extractMethod(matcher)
 
-                if module != None and method != None:
+                if self.__isValid(module) and self.__isValid(method):
                     frame = Frame(module, method)
                     stackFrames.append(frame)
 
+        self.__removeRecursiveCalls(stackFrames)
         return Stack(id, stackTrace, stackFrames)
 
 
-    def getModule(self, matcher):
+    def __extractModule(self, matcher):
         module = matcher.group(1).strip()
-        if module.startswith('libsystem') or module.startswith('libc++abi') or module.startswith('libobjc.A') or module.startswith('libdyld'):
+        module = self.__stripSystemModules(module)
+        return module
+
+
+    def __extractMethod(self, matcher):
+        method = matcher.group(2).strip()
+        method = self.__stripOffset(method)
+        method = self.__stripUnsymbolicatedMethod(method)
+        method = self.__stripParameters(method)
+        return method
+
+
+    def __stripSystemModules(self, module):
+        SYSTEM_MODULES = ('libsystem', 'libc++abi', 'libobjc.A', 'libdyld')
+        if not module or module.startswith(SYSTEM_MODULES):
             return None
         return module
 
 
-    def getMethod(self, matcher):
-        method = matcher.group(2).strip()
-        if method.startswith('0x'):
+    def __removeRecursiveCalls(self, stackFrames):
+        pass
+
+
+    def __stripOffset(self, method):
+        if not method:
             return None
-        plusIndex = method.find(' +')
+        offsetIndex = method.find(' + ')
         appNameIndex = method.find(' (in ' + self.appName)
-        if plusIndex == -1 and appNameIndex == -1:
+        if offsetIndex == -1 and appNameIndex == -1:
             return method
-        elif plusIndex == -1 or appNameIndex == -1:
-            endIndex = max(plusIndex, appNameIndex)
+        elif offsetIndex == -1 or appNameIndex == -1:
+            endIndex = max(offsetIndex, appNameIndex)
             return method[:endIndex]
-        endIndex = min(plusIndex, appNameIndex)
+        endIndex = min(offsetIndex, appNameIndex)
         return method[:endIndex]
+
+
+    def __stripUnsymbolicatedMethod(self, method):
+        hexPrefix = '0x'
+        if not method or method.startswith(hexPrefix):
+            return None
+        return method
+
+
+    def __stripParameters(self, method):
+        if not method:
+            return None
+        openParanIndex = method.find('(')
+        if openParanIndex != -1:
+            return method[:openParanIndex]
+        return method
+
+
+    def __isValid(self, str):
+        if str == None or len(str) <= 0:
+            return False
+        return True
+
 
 
 # Not really the main function but used for debugging CrashParser
