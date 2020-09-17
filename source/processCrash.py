@@ -45,8 +45,8 @@ class CrashProcessor:
 
 
 def main(argv):
-    crashesFile = "../dataset/sample_crashes.txt"
-    #crashesFile = "../dataset/kpr_mac_stack_trace.txt"
+    #crashesFile = "../dataset/sample_crashes.txt"
+    crashesFile = "../dataset/kpr_mac_stack_trace.txt"
     processor = CrashProcessor(argv[0])
     processor.processCrashes(crashesFile)
     processor.generateReport("../dumps")

@@ -3,6 +3,11 @@ class Frame:
         self.module = module
         self.method = method
 
+    def __eq__(self, frame):
+        if isinstance(frame, Frame):
+            return self.module == frame.module and self.method == frame.method
+        return False
+
 
 class Stack:
     def __init__(self, id, stackTrace, frames):

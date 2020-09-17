@@ -1,6 +1,7 @@
 import sys
 import re
 from CrashStructure import Frame, Stack
+from stack_optimizer import *
 
 
 class CrashParser:
@@ -22,7 +23,7 @@ class CrashParser:
                     frame = Frame(module, method)
                     stackFrames.append(frame)
 
-        self.__removeRecursiveCalls(stackFrames)
+        stackFrames = self.__removeRecursiveCalls(stackFrames)
         return Stack(id, stackTrace, stackFrames)
 
 
@@ -48,7 +49,7 @@ class CrashParser:
 
 
     def __removeRecursiveCalls(self, stackFrames):
-        pass
+        return removeRepeats(stackFrames)
 
 
     def __stripOffset(self, method):
@@ -97,14 +98,19 @@ def main(argv):
     # If the frame structure is changed, update the regex
     stackTrace = """Thread 0 Crashed:: Main Thread  Dispatch queue: com.apple.main-thread
                     0   com.company.sampleApp                	0x000000010d047fac ns4::ns5::CrashingClass::crashingMethod() (in Sample App) + 204
-                    0   com.company.sampleApp                	0x000000010d047fac 0x7fff4baa4000
-                    1   com.company.sampleApp                	0x000000010daed410 ns2::AnotherClass::loremIpsum() (in Sample App) (FileName.cpp:158)
-                    2   com.company.sampleApp                	0x000000010daec5df ns2::AnotherClass::anotherMethod() (in Sample App) (FileName.cpp:116)
-                    3   com.company.sampleApp                	0x000000010daebbc1 ns2::AnotherClass::randomFunction(std::__1::shared_ptr<foo::SampleClass>) (in Sample App) (FileName.cpp:95)
-                    4   com.company.sampleApp                	0x000000010d4ac914 ns1::func2(std::__1::shared_ptr<foo::SampleClass>, bool) (in Sample App) (AppController.cpp:366)
-                    5   com.company.sampleApp                	0x000000010bad3add fun1() (in Sample App) (CoreApplication.cpp:21)
-                    6   com.company.sampleApp                	0x000000010baa89e1 main (in Sample App) (main.cpp:98)
-                    7   libdyld.dylib                 	0x00007fff72a442e5 start + 1"""
+                    0   com.company.sampleApp                	0x000000010d047fac ns4::ns5::CrashingClass::crashingMethod() (in Sample App) + 204
+                    1   com.company.sampleApp                	0x000000010d047fac 0x7fff4baa4000
+                    2   com.company.sampleApp                	0x000000010daed410 ns2::AnotherClass::loremIpsum() (in Sample App) (FileName.cpp:158)
+                    3   com.company.sampleApp                	0x000000010daec5df ns2::AnotherClass::anotherMethod() (in Sample App) (FileName.cpp:116)
+                    4   com.company.sampleApp                	0x000000010daebbc1 ns2::AnotherClass::randomFunction(std::__1::shared_ptr<foo::SampleClass>) (in Sample App) (FileName.cpp:95)
+                    5   com.company.sampleApp                	0x000000010daed410 ns2::AnotherClass::loremIpsum() (in Sample App) (FileName.cpp:158)
+                    6   com.company.sampleApp                	0x000000010daec5df ns2::AnotherClass::anotherMethod() (in Sample App) (FileName.cpp:116)
+                    7   com.company.sampleApp                	0x000000010daebbc1 ns2::AnotherClass::randomFunction(std::__1::shared_ptr<foo::SampleClass>) (in Sample App) (FileName.cpp:95)
+                    8   com.company.sampleApp                	0x000000010d4ac914 ns1::func2(std::__1::shared_ptr<foo::SampleClass>, bool) (in Sample App) (AppController.cpp:366)
+                    9   com.company.sampleApp                	0x000000010bad3add fun1() (in Sample App) (CoreApplication.cpp:21)
+                    9   com.company.sampleApp                	0x000000010bad3add fun1() (in Sample App) (CoreApplication.cpp:21)
+                    10  com.company.sampleApp                	0x000000010baa89e1 main (in Sample App) (main.cpp:98)
+                    11  libdyld.dylib                 	0x00007fff72a442e5 start + 1"""
 
     crashStack = parser.parse(1, stackTrace)
     print(crashStack.id)
