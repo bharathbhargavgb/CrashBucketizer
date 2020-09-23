@@ -8,7 +8,7 @@ class CrashProcessor:
 
     def __init__(self, appName):
         self.parser = CrashParser(appName)
-        self.bucketizer = CrashBucketizer([], distance_measure='PDM', threshold=0.8, distToTop=0.0, alignOffset=0.0)
+        self.bucketizer = CrashBucketizer([], distance_measure='PDM', threshold=0.8, distToTop=0.1, alignOffset=0.01)
 
     def processCrashes(self, crashFile):
         counter = 0
@@ -38,6 +38,7 @@ class CrashProcessor:
 
         for bucket in self.bucketizer.getBuckets():
             bucketName = 'bucket' + str(bucket.id)
+            print(str(bucket.id) + '\t' + str(len(bucket)) + '\t' + str(bucket.stacks[0].frames[0].method))
             with open(os.path.join(outputPath, bucketName + ".txt"), "a") as bucketFile:
                 for crash in bucket.stacks:
                     bucketFile.write('Crash ' + str(crash.id) + os.linesep)

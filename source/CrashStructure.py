@@ -27,6 +27,9 @@ class Bucket:
         self.id = id
         self.stacks = []
 
+    def __len__(self):
+        return len(self.stacks)
+
     def append(self, crashStack):
         self.stacks.append(crashStack)
 
