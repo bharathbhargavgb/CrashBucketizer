@@ -8,7 +8,7 @@ class CrashProcessor:
 
     def __init__(self, appName):
         self.parser = CrashParser(appName)
-        self.bucketizer = CrashBucketizer([], distance_measure='PDM', threshold=0.8, distToTop=0.1, alignOffset=0.01)
+        self.bucketizer = CrashBucketizer([], distance_measure='PDM', threshold=0.8, distToTop=0.01, alignOffset=0.0)
 
     def processCrashes(self, crashFile):
         counter = 0

@@ -17,20 +17,21 @@ class CrashBucketizer:
 
     def bucketize(self, newStack):
         if len(newStack) == 0:
-            print("No frames available for this crash")
+            print("No valid frames available for this crash")
             print(newStack.getRawStackTrace())
             return
 
         bestBucket = None
         maxSimilarity = -1
         for bucket in self.buckets:
-            bucketized_stack = bucket.getCandidateStack()
-            if bucketized_stack == None:
-                continue
-            similarity = self.__getSimilarity(bucketized_stack, newStack)
-            if similarity > maxSimilarity:
-                maxSimilarity = similarity
-                bestBucket = bucket
+            candidates = bucket.getCandidateStacks(3)
+            for bucketized_stack in candidates:
+                if bucketized_stack == None:
+                    continue
+                similarity = self.__getSimilarity(bucketized_stack, newStack)
+                if similarity > maxSimilarity:
+                    maxSimilarity = similarity
+                    bestBucket = bucket
 
         if not self.buckets or maxSimilarity < self.threshold:
             newBucket = Bucket(len(self.buckets) + 1)

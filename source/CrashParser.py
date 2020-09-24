@@ -24,6 +24,7 @@ class CrashParser:
                     stackFrames.append(frame)
 
         stackFrames = self.__removeRecursiveCalls(stackFrames)
+        stackFrames = stackFrames[:40]
         return Stack(id, stackTrace, stackFrames)
 
 
@@ -42,7 +43,7 @@ class CrashParser:
 
 
     def __stripSystemModules(self, module):
-        SYSTEM_MODULES = ('libsystem', 'libc++abi', 'libobjc.A', 'libdyld')
+        SYSTEM_MODULES = ('libsystem', 'libc++abi', 'libobjc.A', 'libdyld', 'libdispatch')
         if not module or module.startswith(SYSTEM_MODULES):
             return None
         return module
