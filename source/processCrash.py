@@ -1,13 +1,15 @@
 import sys
 import os
 import shutil
-from CrashParser import *
+from CrashParserFactory import *
 from CrashBucketizer import *
+from PlatformUtils import *
+
 
 class CrashProcessor:
 
-    def __init__(self, appName):
-        self.parser = CrashParser(appName)
+    def __init__(self, os, lang):
+        self.parser = CrashParserFactory().getCrashParser(os, lang)
         self.bucketizer = CrashBucketizer([], distance_measure='PDM', threshold=0.8, distToTop=0.01, alignOffset=0.0)
 
     def processCrashes(self, crashFile):
@@ -48,7 +50,7 @@ class CrashProcessor:
 def main(argv):
     #crashesFile = "../dataset/sample_crashes.txt"
     crashesFile = "../dataset/kpr_mac_stack_trace.txt"
-    processor = CrashProcessor(argv[0])
+    processor = CrashProcessor(OperatingSystem.MAC, ProgrammingLanguage.CPP)
     processor.processCrashes(crashesFile)
     processor.generateReport("../dumps")
 
