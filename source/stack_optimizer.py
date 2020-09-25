@@ -3,17 +3,17 @@ from maximal_repeat.rstr_max import *
 
 
 def removeRepeats(stackFrames):
-    stackFrames = removeMaximalRepeats(stackFrames)
+    stackFrames = removeGroupRepeats(stackFrames)
     stackFrames = removeAdjacentRepeats(stackFrames)
     return stackFrames
 
 
-def removeMaximalRepeats(stackFrames):
+def removeGroupRepeats(stackFrames):
     stackString = convertStackToString(stackFrames)
     rstr = Rstr_max()
     rstr.add_str(stackString)
     repeats = rstr.go()
-    stackString = removeMaxRepeat(rstr, repeats, stackString)
+    stackString = removeMaximalRepeat(rstr, repeats, stackString)
     stackFrames = convertStringToStack(stackString)
     return stackFrames
 
@@ -28,7 +28,7 @@ def removeAdjacentRepeats(stackFrames):
     return stackFrames[:left+1]
 
 
-def removeMaxRepeat(rstr, repeats, stackString):
+def removeMaximalRepeat(rstr, repeats, stackString):
     max_count = 0
     max_indexes = None
     for (offset_end, nb), (l, start_plage) in repeats.items():
@@ -71,6 +71,9 @@ def convertStringToStack(stackString):
         if not entry:
             continue
         items = entry.split('$')
-        frame = Frame(items[0], items[1])
+        try:
+            frame = Frame(items[0], items[1])
+        except IndexError:
+            continue
         stackFrames.append(frame)
     return stackFrames

@@ -1,6 +1,7 @@
 from PlatformUtils import *
 from CrashParser import *
 from CrashParserCppMac import *
+from CrashParserCppWin import *
 
 
 class CrashParserFactory:
@@ -8,7 +9,7 @@ class CrashParserFactory:
         if lang == ProgrammingLanguage.CPP:
             if os == OperatingSystem.MAC:
                 return CrashParserCppMac()
-            elif os == OperatingSystem.WIN:
+            elif os == OperatingSystem.WINDOWS:
                 return CrashParserCppWin()
 
         return CrashParser()

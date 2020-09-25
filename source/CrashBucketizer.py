@@ -9,6 +9,7 @@ class CrashBucketizer:
         self.distance_measure = distance_measure
         self.threshold = threshold
         self.hyperParams = hyperParams
+        self.ignoredStacks = []
 
 
     def getBuckets(self):
@@ -17,8 +18,7 @@ class CrashBucketizer:
 
     def bucketize(self, newStack):
         if len(newStack) == 0:
-            print("No valid frames available for this crash")
-            print(newStack.getRawStackTrace())
+            self.ignoredStacks.append(newStack)
             return
 
         bestBucket = None
@@ -39,6 +39,10 @@ class CrashBucketizer:
             self.buckets.append(newBucket)
         else:
             bestBucket.append(newStack)
+
+
+    def getIgnoredStacks(self):
+        return self.ignoredStacks
 
 
     def __getSimilarity(self, stack1, stack2):

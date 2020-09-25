@@ -1,8 +1,6 @@
-import sys
 import re
 from CrashParser import *
 from CrashStructure import Frame, Stack
-from stack_optimizer import *
 
 
 class CrashParserCppMac(CrashParser):
@@ -19,11 +17,11 @@ class CrashParserCppMac(CrashParser):
                 module = self.__extractModule(matcher)
                 method = self.__extractMethod(matcher)
 
-                if self.__isValid(module) and self.__isValid(method):
+                if self.isValidString(module) and self.isValidString(method):
                     frame = Frame(module, method)
                     stackFrames.append(frame)
 
-        stackFrames = self.__removeRecursiveCalls(stackFrames)
+        stackFrames = self.removeRecursiveCalls(stackFrames)
         stackFrames = stackFrames[:40]
         return Stack(id, stackTrace, stackFrames)
 
@@ -37,7 +35,7 @@ class CrashParserCppMac(CrashParser):
     def __extractMethod(self, matcher):
         method = matcher.group(2).strip()
         method = self.__stripOffset(method)
-        method = self.__stripUnsymbolicatedMethod(method)
+        method = self.stripUnsymbolicatedFrame(method)
         method = self.__stripParameters(method)
         return method
 
@@ -47,10 +45,6 @@ class CrashParserCppMac(CrashParser):
         if not module or module.startswith(SYSTEM_MODULES):
             return None
         return module
-
-
-    def __removeRecursiveCalls(self, stackFrames):
-        return removeRepeats(stackFrames)
 
 
     def __stripOffset(self, method):
@@ -67,13 +61,6 @@ class CrashParserCppMac(CrashParser):
         return method[:endIndex]
 
 
-    def __stripUnsymbolicatedMethod(self, method):
-        hexPrefix = '0x'
-        if not method or method.startswith(hexPrefix):
-            return None
-        return method
-
-
     def __stripParameters(self, method):
         if not method:
             return None
@@ -83,15 +70,9 @@ class CrashParserCppMac(CrashParser):
         return method
 
 
-    def __isValid(self, str):
-        if str == None or len(str) <= 0:
-            return False
-        return True
-
-
 
 # Not really the main function but used for debugging CrashParser
-def main(argv):
+def main():
     parser = CrashParserCppMac()
 
     # Sample mac stack trace of crashed thread
@@ -113,11 +94,10 @@ def main(argv):
                     11  libdyld.dylib                 	0x00007fff72a442e5 start + 1"""
 
     crashStack = parser.parse(1, stackTrace)
-    print(crashStack.id)
     for frame in crashStack.frames:
         print(frame.module + '\t' + frame.method)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
 

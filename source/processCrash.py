@@ -46,11 +46,18 @@ class CrashProcessor:
                     bucketFile.write('Crash ' + str(crash.id) + os.linesep)
                     bucketFile.write(crash.getRawStackTrace() + os.linesep)
 
+        print("Ignored crashes - " + str(len(self.bucketizer.getIgnoredStacks())))
+
 
 def main(argv):
-    #crashesFile = "../dataset/sample_crashes.txt"
-    crashesFile = "../dataset/kpr_mac_stack_trace.txt"
-    processor = CrashProcessor(OperatingSystem.MAC, ProgrammingLanguage.CPP)
+    if False:
+        #crashesFile = "../dataset/sample_crashes_mac.txt"
+        crashesFile = "../dataset/kpr_mac_stack_trace.txt"
+        processor = CrashProcessor(OperatingSystem.MAC, ProgrammingLanguage.CPP)
+    else:
+        #crashesFile = "../dataset/sample_crashes_win.txt"
+        crashesFile = "../dataset/kpr_win_stack_trace.txt"
+        processor = CrashProcessor(OperatingSystem.WINDOWS, ProgrammingLanguage.CPP)
     processor.processCrashes(crashesFile)
     processor.generateReport("../dumps")
 
